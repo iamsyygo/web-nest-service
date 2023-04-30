@@ -1,0 +1,22 @@
+http:
+  port: 8080
+  host: 'localhost'
+
+db:
+  type: 'mysql'
+  host: 'localhost'
+  port: 3306
+  username: 'root'
+  password: '123456'
+  database: 'nest-dev'
+  # 自动同步数据库结构
+  synchronize: true
+  # 打印数据库日志
+  logging: true
+  # 自动加载实体
+  autoLoadEntities: true
+
+email:
+  host: 'smtp.gmail.com'
+  port: 587
+  username: ''
