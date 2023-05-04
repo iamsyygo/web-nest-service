@@ -17,4 +17,14 @@ export class CodeRemoveService {
   getList(query: PaginateDto) {
     return paginate(this.usersRepository, query);
   }
+
+  async setCodeRemove(createCodeRemoveDto: CreateCodeRemoveDto) {
+    const reslut = await this.usersRepository.save(createCodeRemoveDto);
+    return reslut;
+  }
+
+  async deleteCodeRemove(ids: string[]) {
+    const reslut = await this.usersRepository.delete(ids);
+    return reslut;
+  }
 }

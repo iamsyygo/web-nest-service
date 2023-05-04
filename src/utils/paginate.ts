@@ -1,4 +1,4 @@
-// 分页
+// 分页   SQL 注入???
 
 import { ApiProperty } from '@nestjs/swagger';
 import { Repository, SelectQueryBuilder } from 'typeorm';
@@ -96,7 +96,6 @@ export const timeRangeQuery = <T>(
   start: string,
   end: string,
 ) => {
-  console.log(start, end);
   entity.andWhere(`q.${key} between :start and :end`, {
     start,
     end,
@@ -113,7 +112,6 @@ export const timeRangeQuery = <T>(
 export const datesQuery = <T>(entity: SelectQueryBuilder<T>, dates: Record<string, string>) => {
   Object.keys(dates).forEach((key) => {
     const date = dates[key];
-    if (!date) return entity;
     const start = dayjs(date).startOf('day').format('YYYY-MM-DD HH:mm:ss');
     const end = dayjs(date).endOf('day').format('YYYY-MM-DD HH:mm:ss');
     timeRangeQuery(entity, key, start, end);
@@ -146,7 +144,16 @@ export const timeRangesQuery = <T>(
  * @returns {Promise<{ list: T[]; total: number; page: number; limit: number }>}
  */
 export const paginate = async <T>(entity: Repository<T>, options: PaginateOptions) => {
-  const { page = 1, limit = 10, exact, fuzzy, exclude, order, timeRanges, dates } = options;
+  const {
+    page = 1,
+    limit = 10,
+    exact,
+    fuzzy,
+    exclude,
+    order,
+    timeRanges,
+    dates,
+  } = JSON.parse(JSON.stringify(options)); // 过滤空值undefined
   const q = entity.createQueryBuilder('q');
   fuzzy && fuzzyQuery(q, fuzzy);
   exact && exactQuery(q, exact);

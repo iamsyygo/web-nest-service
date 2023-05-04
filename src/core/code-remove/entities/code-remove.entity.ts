@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { getDate } from 'src/utils/date';
 import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
 
 @Entity()
 export class CodeRemove {
+  @ApiProperty({ description: '主键' })
   @PrimaryGeneratedColumn('uuid')
   id: number;
 
@@ -32,6 +34,7 @@ export class CodeRemove {
   })
   sourceIp?: string;
 
+  @ApiProperty({ description: '目标IP' })
   @Column({
     type: 'varchar',
     length: 255,
@@ -39,12 +42,15 @@ export class CodeRemove {
   })
   targetIp: string;
 
+  @ApiProperty({ description: '提交时间' })
   @Column({
     type: 'date', // e.g. 2018-11-13
     comment: '提交时间',
+    // default: () => 'CURRENT_TIMESTAMP',
   })
-  pushTime: string;
+  pushTime?: string;
 
+  @ApiProperty({ description: '提交人' })
   @Column({
     type: 'varchar',
     length: 255,
@@ -52,6 +58,7 @@ export class CodeRemove {
   })
   pushUser: string;
 
+  @ApiProperty({ description: '真实地址' })
   @Column({
     type: 'varchar',
     length: 255,

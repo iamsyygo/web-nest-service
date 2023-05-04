@@ -35,4 +35,5 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # yaml
-# *.yaml
+*.yaml
+!dev.yaml
