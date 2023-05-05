@@ -11,20 +11,20 @@ import { PaginateDto } from './dto/paginate.dto';
 export class CodeRemoveService {
   constructor(
     @InjectRepository(CodeRemove)
-    private usersRepository: Repository<CodeRemove>,
+    private repository: Repository<CodeRemove>,
   ) {}
 
   getList(query: PaginateDto) {
-    return paginate(this.usersRepository, query);
+    return paginate(this.repository, query);
   }
 
   async setCodeRemove(createCodeRemoveDto: CreateCodeRemoveDto) {
-    const reslut = await this.usersRepository.save(createCodeRemoveDto);
+    const reslut = await this.repository.save(createCodeRemoveDto);
     return reslut;
   }
 
   async deleteCodeRemove(ids: string[]) {
-    const reslut = await this.usersRepository.delete(ids);
+    const reslut = await this.repository.delete(ids);
     return reslut;
   }
 }

@@ -28,7 +28,6 @@ export class CodeRemoveController {
   @ApiOperation({ summary: '新增部署信息' })
   @Post('/setCodeRemove')
   create(@Body() createCodeRemoveDto: CreateCodeRemoveDto) {
-    createCodeRemoveDto.pushTime = getDate();
     return this.codeRemoveService.setCodeRemove(createCodeRemoveDto);
   }
 

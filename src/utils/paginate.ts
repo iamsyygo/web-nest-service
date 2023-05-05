@@ -15,6 +15,7 @@ export class PaginateOptions {
   order?: Record<string, 'ASC' | 'DESC'>;
   timeRanges?: Record<string, string>; // 时间范围, 例如: { daterange: '2021-01-01,2021-01-02' }
   dates?: Record<string, string>; // 日期
+  eager?: string[]; // 自动关联，因为使用的是 queryBuilder，所以需要手动关联，find 方法不需要主要设置 eager = true
 }
 
 /**
@@ -138,12 +139,32 @@ export const timeRangesQuery = <T>(
 };
 
 /**
+ * 关联查询
+ * @param {SelectQueryBuilder<T>} entity
+ * @param {string[]} eager
+ * @returns {SelectQueryBuilder<T>}
+ */
+export const eagerQuery = <T>(entity: SelectQueryBuilder<T>, eager: string[]) => {
+  eager.forEach((key) => {
+    entity.leftJoinAndSelect(`q.${key}`, key);
+  });
+  return entity;
+};
+
+// 自定义分页查询
+type ICustom<T> = (entity: SelectQueryBuilder<T>) => SelectQueryBuilder<T>;
+
+/**
  * 分页查询
  * @param {Repository<T>} entity
  * @param {PaginateOptions} options
  * @returns {Promise<{ list: T[]; total: number; page: number; limit: number }>}
  */
-export const paginate = async <T>(entity: Repository<T>, options: PaginateOptions) => {
+export const paginate = async <T>(
+  entity: Repository<T>,
+  options: PaginateOptions,
+  custom?: ICustom<T>,
+) => {
   const {
     page = 1,
     limit = 10,
@@ -153,6 +174,7 @@ export const paginate = async <T>(entity: Repository<T>, options: PaginateOption
     order,
     timeRanges,
     dates,
+    eager,
   } = JSON.parse(JSON.stringify(options)); // 过滤空值undefined
   const q = entity.createQueryBuilder('q');
   fuzzy && fuzzyQuery(q, fuzzy);
@@ -163,6 +185,13 @@ export const paginate = async <T>(entity: Repository<T>, options: PaginateOption
   exclude && excludeQuery(q, exclude);
 
   pageQuery(q, page, limit);
+
+  // 如果有级联的
+  eager && eagerQuery(q, eager);
+
+  // 自定义查询
+  custom?.(q);
+
   const [list, total] = await q.getManyAndCount();
   return {
     list,

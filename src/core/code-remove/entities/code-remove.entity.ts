@@ -43,6 +43,7 @@ export class CodeRemove {
   targetIp: string;
 
   @ApiProperty({ description: '提交时间' })
+  @CreateDateColumn({ type: 'date', comment: '提交时间' })
   @Column({
     type: 'date', // e.g. 2018-11-13
     comment: '提交时间',
