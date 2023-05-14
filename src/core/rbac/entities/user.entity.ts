@@ -2,16 +2,14 @@ import {
   BeforeInsert,
   BeforeUpdate,
   Column,
-  CreateDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
+import { hashSync } from 'bcryptjs';
+
 import { RbacRole } from './role.entity';
-import { ApiProperty } from '@nestjs/swagger';
 import { getDate } from 'src/utils/date';
 
 @Entity('rbac_user')
@@ -19,53 +17,48 @@ export class RbacUser {
   @PrimaryGeneratedColumn('uuid')
   id: number;
 
-  @ApiProperty({ description: '用户名' })
   @Column({ comment: '用户名' })
-  username?: string;
+  username: string;
 
-  @ApiProperty({ description: '密码' })
   @Column({ comment: '密码' })
-  password?: string;
+  password: string;
 
-  @ApiProperty({ description: '头像' })
-  @Column({ comment: '头像' })
+  @BeforeInsert()
+  async encryptPassword() {
+    this.password = await hashSync(this.password, 10);
+  }
+
+  @Column({ comment: '头像', nullable: true })
   avatar: string;
 
-  @ApiProperty({ description: '邮箱' })
   @Column({ comment: '邮箱', unique: true })
   email: string;
 
-  @ApiProperty({ description: '手机号' })
-  @Column({ comment: '手机号', unique: true })
+  @Column({ comment: '手机号', unique: true, nullable: true })
   phoneNumber: string;
 
-  @ApiProperty({ description: '真实姓名' })
-  @Column({ comment: '真实姓名' })
+  @Column({ comment: '真实姓名', nullable: true })
   fullName: string;
 
-  @ApiProperty({ description: '性别', type: 'enum', enum: [0, 1, 2], default: 2 })
   @Column({
     type: 'enum',
     comment: '性别，0 表示男，1 表示女，2 表示未知',
     enum: [0, 1, 2],
     default: 2,
+    nullable: true,
   })
-  gender: [0, 1, 2];
+  gender: 0 | 1 | 2;
 
-  @ApiProperty({ description: '生日' })
-  @Column({ type: 'date', comment: '生日' })
+  @Column({ type: 'date', comment: '生日', nullable: true })
   birthday: Date;
 
-  @ApiProperty({ description: '国家' })
-  @Column({ comment: '省份' })
+  @Column({ comment: '省份', nullable: true })
   province: string;
 
-  @ApiProperty({ description: '城市' })
-  @Column({ comment: '城市' })
+  @Column({ comment: '城市', nullable: true })
   city: string;
 
-  @ApiProperty({ description: '区县' })
-  @Column({ comment: '详细地址' })
+  @Column({ comment: '详细地址', nullable: true })
   address: string;
 
   @Column({
@@ -73,39 +66,35 @@ export class RbacUser {
     comment: '是否启用，0 表示正常，1 表示禁用，2 表示删除',
     enum: [0, 1, 2],
     default: 0,
+    nullable: true,
   })
-  state: [0, 1, 2];
+  state: number;
 
-  // @ApiProperty({ description: '最后登录时间' })
   // @Column({ type: 'date', comment: '最后登录时间' })
   // lastLoginTime: Date;
 
-  // @ApiProperty({ description: '最后登录 IP' })
   // @Column({ comment: '最后登录 IP' })
   // lastLoginIp: string;
 
   // @ApiProperty({ description: '注册时间' })
   @Column({ type: 'date', comment: '注册时间', nullable: true })
   registerTime: string;
+
   @BeforeInsert()
   createDate() {
-    this.registerTime = getDate();
+    this.registerTime = getDate('YYYY-MM-DD HH:mm:ss');
   }
 
-  // @ApiProperty({ description: '注册 IP' })
   // @Column({ comment: '注册 IP' })
   // registerIp: string;
 
-  // @ApiProperty({ description: '更新时间' })
-  // @UpdateDateColumn({ type: 'date', comment: '更新时间' })
   @Column({ type: 'date', comment: '更新时间', nullable: true })
   updateTime: string;
   @BeforeUpdate()
   updateDate() {
-    this.updateTime = getDate();
+    this.updateTime = getDate('YYYY-MM-DD HH:mm:ss');
   }
 
-  // 外键关联，角色字段，一个用户对应多个角色
   @ManyToMany(() => RbacRole, (b) => b.users, {
     cascade: true, // 级联操作
     eager: true, // 自动关联查询

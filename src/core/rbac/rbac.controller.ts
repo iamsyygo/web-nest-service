@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  Req,
+  Request,
+} from '@nestjs/common';
 import { RbacService } from './rbac.service';
 import { CreateRbacUserDto } from './dto/create-rbac.dto';
 import { UpdateRbacDto } from './dto/update-rbac.dto';
@@ -23,7 +34,7 @@ export class RbacController {
 
   @ApiOperation({ summary: '创建用户' })
   @Post('user/create')
-  createUser(@Body() createRbacDto: CreateRbacUserDto) {
-    return this.rbacService.createUser(createRbacDto);
+  createUser(@Body() createRbacDto: CreateRbacUserDto, @Req() request: Request) {
+    return this.rbacService.createUser(createRbacDto, request);
   }
 }

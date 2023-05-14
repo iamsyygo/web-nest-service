@@ -24,7 +24,7 @@ export class AllResponseInterceptor implements NestInterceptor {
           data,
           message: '请求成功',
           timestamp: f - b + 'ms',
-          url: request.url,
+          uri: request.url,
           success: true,
         };
       }),

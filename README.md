@@ -45,6 +45,20 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Cookie
+
+```bash
+pnpm add cookie-parser
+pnpm add -D @types/cookie-parser
+```
+
+```js
+// main.ts
+
+//注册cookie
+app.use(cookieParser('xxx')); //加密密码
+```
+
 ## Test
 
 ```bash
