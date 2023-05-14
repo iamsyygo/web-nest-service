@@ -4,14 +4,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import * as dayjs from 'dayjs';
 
-export class PaginateOptions {
+export class PaginateOptions<T> {
   @ApiProperty({ description: '页码', default: 1 })
   page: number;
   @ApiProperty({ description: '页数', default: 10 })
   limit: number;
   fuzzy?: Record<string, any>;
   exact?: Record<string, any>;
-  exclude?: string[];
+  select?: Array<`q.${string & keyof T}` | `-q.${string & keyof T}`>;
   order?: Record<string, 'ASC' | 'DESC'>;
   timeRanges?: Record<string, string>; // 时间范围, 例如: { daterange: '2021-01-01,2021-01-02' }
   dates?: Record<string, string>; // 日期
@@ -45,15 +45,13 @@ export const exactQuery = <T>(entity: SelectQueryBuilder<T>, exact: Record<strin
 };
 
 /**
- * 排除查询
+ * 排除查询 - 排除字段的返回
  * @param {SelectQueryBuilder<T>} entity
- * @param {string[]} exclude
+ * @param {string[]} select
  * @returns {SelectQueryBuilder<T>}
  */
-export const excludeQuery = <T>(entity: SelectQueryBuilder<T>, exclude: string[]) => {
-  exclude.forEach((key) => {
-    entity.andWhere(`q.${key} != :${key}`, { [key]: exclude[key] });
-  });
+export const selectQuery = <T>(entity: SelectQueryBuilder<T>, select: string[]) => {
+  entity.select(select);
   return entity;
 };
 
@@ -63,7 +61,10 @@ export const excludeQuery = <T>(entity: SelectQueryBuilder<T>, exclude: string[]
  * @param {Record<string, 'ASC' | 'DESC'>} order
  * @returns {SelectQueryBuilder<T>}
  */
-export const orderQuery = <T>(entity: SelectQueryBuilder<T>, order: PaginateOptions['order']) => {
+export const orderQuery = <T>(
+  entity: SelectQueryBuilder<T>,
+  order: PaginateOptions<T>['order'],
+) => {
   Object.keys(order).forEach((key) => {
     entity.orderBy(`q.${key}`, order[key]);
   });
@@ -129,7 +130,7 @@ export const datesQuery = <T>(entity: SelectQueryBuilder<T>, dates: Record<strin
  */
 export const timeRangesQuery = <T>(
   entity: SelectQueryBuilder<T>,
-  timeRange: PaginateOptions['timeRanges'],
+  timeRange: PaginateOptions<T>['timeRanges'],
 ) => {
   Object.keys(timeRange).forEach((key) => {
     const [start, end] = timeRange[key]?.split(',');
@@ -162,7 +163,7 @@ type ICustom<T> = (entity: SelectQueryBuilder<T>) => SelectQueryBuilder<T>;
  */
 export const paginate = async <T>(
   entity: Repository<T>,
-  options: PaginateOptions,
+  options: PaginateOptions<T>,
   custom?: ICustom<T>,
 ) => {
   const {
@@ -170,7 +171,7 @@ export const paginate = async <T>(
     limit = 10,
     exact,
     fuzzy,
-    exclude,
+    select,
     order,
     timeRanges,
     dates,
@@ -182,7 +183,7 @@ export const paginate = async <T>(
   timeRanges && timeRangesQuery(q, timeRanges);
   dates && datesQuery(q, dates);
   order && orderQuery(q, order);
-  exclude && excludeQuery(q, exclude);
+  select && selectQuery(q, select);
 
   pageQuery(q, page, limit);
 

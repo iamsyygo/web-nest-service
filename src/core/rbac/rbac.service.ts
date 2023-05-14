@@ -18,7 +18,7 @@ export class RbacService {
   private readonly roleRepository: Repository<RbacRole>;
   async findUserList(query: PaginateUserDto) {
     query.eager = ['roles'];
-    return paginate(this.userRepository, query);
+    return paginate(this.userRepository, { ...query, select: ['q.id', 'q.address'] });
   }
   async findRoleList(query: PaginateRoleDto) {
     query.eager = ['users'];

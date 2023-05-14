@@ -11,6 +11,7 @@ import { hashSync } from 'bcryptjs';
 
 import { RbacRole } from './role.entity';
 import { getDate } from 'src/utils/date';
+import { Exclude } from 'class-transformer';
 
 @Entity('rbac_user')
 export class RbacUser {
@@ -21,6 +22,7 @@ export class RbacUser {
   username: string;
 
   @Column({ comment: '密码' })
+  // @Exclude()
   password: string;
 
   @BeforeInsert()
