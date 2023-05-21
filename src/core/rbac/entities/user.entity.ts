@@ -16,24 +16,29 @@ import { Exclude } from 'class-transformer';
 @Entity('rbac_user')
 export class RbacUser {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column({ comment: '用户名' })
   username: string;
 
-  @Column({ comment: '密码' })
+  @Column({ comment: '微信 openid', nullable: true })
+  openid: string;
+
+  @Column({ comment: '密码' /* select: false  */, nullable: true })
   // @Exclude()
   password: string;
 
   @BeforeInsert()
   async encryptPassword() {
+    // 微信登录时不需要密码
+    if (!this.password) return;
     this.password = await hashSync(this.password, 10);
   }
 
   @Column({ comment: '头像', nullable: true })
   avatar: string;
 
-  @Column({ comment: '邮箱', unique: true })
+  @Column({ comment: '邮箱', unique: true, nullable: true })
   email: string;
 
   @Column({ comment: '手机号', unique: true, nullable: true })
@@ -107,4 +112,7 @@ export class RbacUser {
   })
   @JoinTable({ name: 'rbac_user_role' })
   roles: RbacRole[];
+
+  @Column({ comment: '微信 session_key', nullable: true })
+  sessionKey?: string;
 }

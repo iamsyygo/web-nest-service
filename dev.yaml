@@ -7,7 +7,7 @@ db:
   host: 'localhost'
   port: 3306
   username: 'root'
-  password: '123456'
+  password: '12345678'
   database: 'nest-dev'
   # 自动同步数据库结构
   synchronize: true
@@ -27,3 +27,11 @@ cookie:
 # 文件上传配置
 file:
   url: '/uploads'
+
+jwt:
+  secret: 'Jsd4JUfwe'
+  expiresIn: '1d'
+
+wxin:
+  appId: 'wx7fb087be0bf0e244'
+  appSecret: '893202baf88591d07be41a2a111b1acf'

@@ -11,7 +11,7 @@ export class PaginateOptions<T> {
   limit: number;
   fuzzy?: Record<string, any>;
   exact?: Record<string, any>;
-  select?: Array<`q.${string & keyof T}` | `-q.${string & keyof T}`>;
+  select?: Array<`q.${string & keyof T}`>;
   order?: Record<string, 'ASC' | 'DESC'>;
   timeRanges?: Record<string, string>; // 时间范围, 例如: { daterange: '2021-01-01,2021-01-02' }
   dates?: Record<string, string>; // 日期

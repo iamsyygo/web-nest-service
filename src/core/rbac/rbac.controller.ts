@@ -15,6 +15,7 @@ import { CreateRbacUserDto } from './dto/create-rbac.dto';
 import { UpdateRbacDto } from './dto/update-rbac.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PaginateRoleDto, PaginateUserDto } from './dto/paginate.dto';
+import { AuthUser, WxinDto } from './dto/user.dto';
 
 @ApiTags('rbac')
 @Controller('rbac')
@@ -36,5 +37,17 @@ export class RbacController {
   @Post('user/create')
   createUser(@Body() createRbacDto: CreateRbacUserDto, @Req() request: Request) {
     return this.rbacService.createUser(createRbacDto, request);
+  }
+
+  @ApiOperation({ summary: '用户认证' })
+  @Post('user/auth')
+  authUser(@Body() body: AuthUser) {
+    return this.rbacService.authUser(body);
+  }
+
+  @ApiOperation({ summary: '微信用户认证' })
+  @Post('user/wxin/auth')
+  wxinLogin(@Body() body: WxinDto) {
+    return this.rbacService.wxinLogin(body);
   }
 }
