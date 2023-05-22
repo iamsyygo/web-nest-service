@@ -21,7 +21,7 @@ export class AuthUser {
 }
 
 export class TokenData {
-  id: string;
+  sub: string;
   username: string;
   email?: string;
   phoneNumber?: string;

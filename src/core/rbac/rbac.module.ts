@@ -4,12 +4,12 @@ import { RbacController } from './rbac.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RbacUser } from './entities/user.entity';
 import { RbacRole } from './entities/role.entity';
-import { jwtModule } from 'src/config';
+import { jwtModule, JwtStrategy } from 'src/config';
 
 @Module({
   imports: [TypeOrmModule.forFeature([RbacUser, RbacRole]), jwtModule],
   controllers: [RbacController],
   exports: [jwtModule],
-  providers: [RbacService],
+  providers: [RbacService, JwtStrategy],
 })
 export class RbacModule {}

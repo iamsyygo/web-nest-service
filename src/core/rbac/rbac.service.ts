@@ -1,6 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { CreateRbacUserDto } from './dto/create-rbac.dto';
-import { UpdateRbacDto } from './dto/update-rbac.dto';
 import { RbacUser } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RbacRole } from './entities/role.entity';
@@ -8,7 +7,6 @@ import { paginate } from 'src/utils/paginate';
 import { Repository } from 'typeorm';
 import { PaginateRoleDto, PaginateUserDto } from './dto/paginate.dto';
 import { plainToClass } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
 import { AuthUser, TokenData, WxinDto } from './dto/user.dto';
 import { compareSync } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -49,11 +47,11 @@ export class RbacService {
     return paginate(this.roleRepository, query);
   }
 
-  async createUser(createRbacDto: CreateRbacUserDto, req: Request) {
-    const hasUser = await this.userRepository.findOne({
+  async createUser(createRbacDto: CreateRbacUserDto) {
+    const user = await this.userRepository.findOne({
       where: { phoneNumber: createRbacDto.phoneNumber, email: createRbacDto.email },
     });
-    if (hasUser) {
+    if (user) {
       throw new HttpException('用户已存在', 400);
     }
     // 触发 TypeORM 的生命周期
@@ -64,28 +62,19 @@ export class RbacService {
     return reslut;
   }
 
-  // 认证用户
+  // 认证用户 - PC
   async authUser(body: AuthUser) {
-    const hasuser = await this.userRepository.findOne({
-      where: { email: body.email, phoneNumber: body.phoneNumber },
-    });
-    if (!hasuser) {
-      throw new HttpException('用户不存在', 400);
-    }
-    if (!compareSync(body.password, hasuser.password)) {
+    const user = await this.validateUser({ email: body.email, phoneNumber: body.phoneNumber });
+    if (!compareSync(body.password, user.password)) {
       throw new HttpException('密码错误', 400);
     }
     const token = this.createToken({
-      id: hasuser.id,
-      username: hasuser.username,
-      email: hasuser.email,
-      phoneNumber: hasuser.phoneNumber,
+      sub: user.id,
+      username: user.username,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
     });
     return `Bearer ${token}`;
-  }
-
-  private createToken(user: TokenData) {
-    return this.jwtService.sign(user);
   }
 
   // https://api.weixin.qq.com/sns/jscode2session
@@ -102,6 +91,8 @@ export class RbacService {
       },
     });
 
+    // TODO: 可以通过 openid 查询用户是否存在
+
     // console.log(wxRes);
     if (wxRes.status !== 200) {
       throw new HttpException(wxRes.data.errmsg, 400);
@@ -109,10 +100,7 @@ export class RbacService {
     if (body.id) {
       // 更新用户信息
       console.log('更新用户信息');
-
-      let user = await this.userRepository.findOne({
-        where: { id: body.id },
-      });
+      let user = await this.validateUser({ id: body.id });
       user = user || new RbacUser();
       user.openid = wxRes.data.openid;
       user.sessionKey = wxRes.data.session_key;
@@ -141,7 +129,7 @@ export class RbacService {
     }
 
     const token = this.createToken({
-      id: _user.id,
+      sub: _user.id,
       username: _user.username,
       openid: _user.openid,
       sessionKey: _user.sessionKey,
@@ -152,8 +140,24 @@ export class RbacService {
     delete _user.sessionKey;
 
     return {
-      auth: `Bearer ${token}`,
+      accessToken: `Bearer ${token}`,
       user: _user,
     };
+  }
+
+  // 创建 token
+  private createToken(user: TokenData) {
+    return this.jwtService.sign(user);
+  }
+
+  // 验证 用户
+  private async validateUser(w: any) {
+    const user = await this.userRepository.findOne({
+      where: w,
+    });
+    if (!user) {
+      throw new HttpException('用户不存在', 400);
+    }
+    return user;
   }
 }
