@@ -1,5 +1,5 @@
 http:
-  port: 8080
+  port: 8090
   host: 'localhost'
 
 db:
@@ -26,7 +26,7 @@ cookie:
 
 # 文件上传配置
 file:
-  url: '/uploads'
+  url: '/Volumes/aoe/web-design/pers-code/file-service'
 
 jwt:
   secret: 'Jsd4JUfwe'

@@ -9,6 +9,7 @@ import { getTypeOrmModule, getYml } from './config';
 import { RbacModule } from './core/rbac/rbac.module';
 import { APP_GUARD } from '@nestjs/core';
 import { CookieModule } from './core/cookie/cookie.module';
+import { BaseUploadModule } from './core/base-upload/base-upload.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CookieModule } from './core/cookie/cookie.module';
     RemoteWarehouseModule,
     RbacModule,
     CookieModule,
+    BaseUploadModule,
   ],
   controllers: [AppController],
   providers: [

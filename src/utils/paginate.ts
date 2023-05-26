@@ -14,7 +14,7 @@ export class PaginateOptions<T> {
   select?: Array<`q.${string & keyof T}`>;
   order?: Record<string, 'ASC' | 'DESC'>;
   timeRanges?: Record<string, string>; // 时间范围, 例如: { daterange: '2021-01-01,2021-01-02' }
-  dates?: Record<string, string>; // 日期
+  dates?: Record<string | keyof T, string>; // 日期
   eager?: string[]; // 自动关联，因为使用的是 queryBuilder，所以需要手动关联，find 方法不需要主要设置 eager = true
 }
 
