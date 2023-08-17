@@ -1,7 +1,5 @@
-// 分页   SQL 注入???
-
 import { ApiProperty } from '@nestjs/swagger';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Brackets, In, Repository, SelectQueryBuilder } from 'typeorm';
 import * as dayjs from 'dayjs';
 
 export class PaginateOptions<T> {
@@ -9,6 +7,7 @@ export class PaginateOptions<T> {
   page: number;
   @ApiProperty({ description: '页数', default: 10 })
   limit: number;
+  multiple?: Record<string, any>;
   fuzzy?: Record<string, any>;
   exact?: Record<string, any>;
   select?: Array<`q.${string & keyof T}`>;
@@ -151,6 +150,26 @@ export const eagerQuery = <T>(entity: SelectQueryBuilder<T>, eager: string[]) =>
   });
   return entity;
 };
+/**
+ * 关联查询
+ * @param {SelectQueryBuilder<T>} entity
+ * @param {string[]} eager
+ * @returns {SelectQueryBuilder<T>}
+ */
+export const multipleSelectionQuery = async <T>(
+  entity: SelectQueryBuilder<T>,
+  multiple?: Record<string, any>,
+) => {
+  entity.andWhere(
+    new Brackets((qb) => {
+      Object.keys(multiple).forEach((key) => {
+        qb.orWhere(`q.${key} in (:...${key})`, { [key]: multiple[key] });
+      });
+    }),
+  );
+
+  return entity;
+};
 
 // 自定义分页查询
 type ICustom<T> = (entity: SelectQueryBuilder<T>) => SelectQueryBuilder<T>;
@@ -176,8 +195,11 @@ export const paginate = async <T>(
     timeRanges,
     dates,
     eager,
+    multiple,
   } = JSON.parse(JSON.stringify(options)); // 过滤空值undefined
   const q = entity.createQueryBuilder('q');
+
+  multiple && multipleSelectionQuery(q, multiple);
   fuzzy && fuzzyQuery(q, fuzzy);
   exact && exactQuery(q, exact);
   timeRanges && timeRangesQuery(q, timeRanges);

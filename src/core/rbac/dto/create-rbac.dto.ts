@@ -3,7 +3,7 @@ import { IsNotEmpty, MinLength, MaxLength, IsEmail, IsMobilePhone } from 'class-
 
 export class CreateRbacUserDto {
   @IsNotEmpty({ message: '用户名不能为空' })
-  @MinLength(6, { message: '用户名长度不能小于 6 位' })
+  @MinLength(3, { message: '用户名长度不能小于 6 位' })
   @MaxLength(20, { message: '用户名长度不能大于 20 位' })
   @ApiProperty({ description: '用户名' })
   username: string;
@@ -17,7 +17,7 @@ export class CreateRbacUserDto {
   @ApiProperty({ description: '头像', required: false })
   avatar: string;
 
-  @ApiProperty({ description: '邮箱', uniqueItems: true })
+  @ApiProperty({ description: '邮箱', uniqueItems: true, required: false })
   @IsEmail({}, { message: '邮箱格式错误' })
   email: string;
 

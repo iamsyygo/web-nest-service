@@ -4,7 +4,7 @@ import { createSwaggerDocument } from './config';
 import { AllResponseInterceptor } from './interceptor/all-response.interceptor';
 import { AnyExceptionFilter } from './filter/any-exception.filter';
 import { ConfigService } from '@nestjs/config';
-import { HttpException, HttpStatus, Logger, ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {

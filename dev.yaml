@@ -1,5 +1,5 @@
 http:
-  port: 8090
+  port: 9800
   host: 'localhost'
 
 db:
@@ -10,7 +10,7 @@ db:
   password: '12345678'
   database: 'nest-dev'
   # 自动同步数据库结构
-  synchronize: false
+  synchronize: true
   # 打印数据库日志
   logging: true
   # 自动加载实体

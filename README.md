@@ -72,6 +72,26 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Decorator
+
+> 不使用 `@CreateDateColumn` 和 `@UpdateDateColumn` 装饰器，使用 `@Column` 装饰器的原因创建的时间格式不符合预期
+> 创建出来的 `timestamp` 类型的时间格式是 `2021-08-31 10:00:00.000`，而不是 `2021-08-31 10:00:00`，所以需要使用 `@Column` 装饰器来创建时间格式
+
+```typescript
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createTime: Date;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  updateTime: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  deleteTime: Date;
+```
+
+## 嵌套实体
+
+> 不使用嵌套实体原因是返回的结构不直观
+
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
